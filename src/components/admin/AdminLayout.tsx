@@ -26,7 +26,7 @@ export function AdminLayout() {
   if (!authenticated) return <div className="min-h-svh bg-canvas" aria-busy="true" />
 
   return (
-    <div className="min-h-svh bg-canvas text-ink lg:flex">
+    <div className="min-h-svh bg-canvas text-ink tabular-nums lg:flex">
       <aside className="hidden w-64 flex-shrink-0 border-r border-line-soft lg:block">
         <div className="fixed h-svh w-64">
           <AdminSidebar />
