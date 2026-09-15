@@ -1,4 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import { ADMIN_USER } from '../../data/adminMock'
+import { useAdminSettings } from '../../hooks/useAdminSettings'
+import { useInquiries } from '../../hooks/useInquiries'
+import { countByStatus } from '../../lib/inquiryStats'
+import { initials as computeInitials } from '../../lib/settingsStore'
 import { IconBell, IconSearch } from './adminIcons'
 import { IconMenu } from '../icons'
 
@@ -7,6 +12,11 @@ type Props = {
 }
 
 export function AdminTopbar({ onOpenSidebar }: Props) {
+  const navigate = useNavigate()
+  const unread = countByStatus(useInquiries(), 'New')
+  const settings = useAdminSettings()
+  const adminName = settings.adminName || ADMIN_USER.name
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-line-soft bg-canvas/90 px-5 backdrop-blur-md sm:px-7">
       <button
@@ -30,19 +40,22 @@ export function AdminTopbar({ onOpenSidebar }: Props) {
       <div className="ml-auto flex items-center gap-5">
         <button
           type="button"
-          aria-label="Notifications"
+          onClick={() => navigate('/admin/notifications')}
+          aria-label={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'}
           className="relative flex h-9 w-9 items-center justify-center text-ink-dim hover:text-ink"
         >
           <IconBell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent-bright" aria-hidden />
+          {unread > 0 && (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent-bright" aria-hidden />
+          )}
         </button>
 
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center bg-surface-2 font-display text-xs font-semibold text-ink">
-            {ADMIN_USER.initials}
+            {computeInitials(adminName, ADMIN_USER.initials)}
           </span>
           <span className="hidden flex-col sm:flex">
-            <span className="text-sm font-semibold text-ink">{ADMIN_USER.name}</span>
+            <span className="text-sm font-semibold text-ink">{adminName}</span>
             <span className="eyebrow text-muted">{ADMIN_USER.role}</span>
           </span>
         </div>

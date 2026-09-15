@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react'
 import { IconArrowRight, IconCheck, IconInstagram, IconMail, IconWhatsapp } from './icons'
 import { revealHidden, useReveal } from '../hooks/useReveal'
+import { addInquiry, type InquiryKind } from '../lib/inquiryStore'
 
 const SESSION_TYPES = [
   'Custom beat making',
@@ -21,13 +22,28 @@ const field =
 const label = 'eyebrow mb-2 block text-muted'
 
 export function Contact() {
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState<InquiryKind | false>(false)
   const info = useReveal<HTMLDivElement>()
   const card = useReveal<HTMLDivElement>(150)
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setSubmitted(true)
+    const form = event.currentTarget
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null
+    const kind: InquiryKind = submitter?.value === 'session' ? 'session' : 'inquiry'
+    const data = new FormData(form)
+
+    addInquiry({
+      kind,
+      name: String(data.get('name') ?? ''),
+      email: String(data.get('email') ?? ''),
+      service: String(data.get('type') ?? ''),
+      preferredDate: String(data.get('date') ?? ''),
+      message: String(data.get('message') ?? ''),
+    })
+
+    setSubmitted(kind)
+    form.reset()
   }
 
   return (
@@ -71,7 +87,9 @@ export function Contact() {
               <span className="flex h-12 w-12 items-center justify-center bg-success-soft text-success">
                 <IconCheck className="h-5 w-5" />
               </span>
-              <h3 className="mt-6 font-display text-xl font-semibold text-ink">Request sent</h3>
+              <h3 className="mt-6 font-display text-xl font-semibold text-ink">
+                {submitted === 'session' ? 'Session request sent' : 'Inquiry sent'}
+              </h3>
               <p className="mt-2 max-w-xs text-sm text-ink-dim">
                 Thanks &mdash; we&apos;ll get back to you within 48 hours with next steps.
               </p>
@@ -141,16 +159,20 @@ export function Contact() {
               <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
+                  name="intent"
+                  value="inquiry"
                   className="flex-1 bg-accent px-6 py-4 font-mono text-[13px] font-semibold tracking-[0.06em] text-accent-ink uppercase transition-[background-color,box-shadow] hover:bg-accent-bright hover:shadow-[0_0_28px_rgba(214,24,26,0.45)]"
                 >
                   Submit an inquiry
                 </button>
-                <a
-                  href="mailto:hello@underwrld.xyz?subject=Session%20request"
+                <button
+                  type="submit"
+                  name="intent"
+                  value="session"
                   className="flex flex-1 items-center justify-center border border-ink/30 px-6 py-3.5 font-mono text-[13px] font-semibold tracking-[0.06em] text-ink uppercase transition-colors hover:border-accent-bright hover:text-accent-bright"
                 >
                   Request a session
-                </a>
+                </button>
               </div>
             </form>
           )}
