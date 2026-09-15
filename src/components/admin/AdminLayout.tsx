@@ -1,11 +1,29 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { fetchSession } from '../../lib/adminAuth'
 import { IconClose } from '../icons'
 import { AdminSidebar } from './AdminSidebar'
 import { AdminTopbar } from './AdminTopbar'
 
+// UX-only gate. The real boundary is the Edge middleware + /api/auth checks on the server.
 export function AdminLayout() {
   const [open, setOpen] = useState(false)
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    let cancelled = false
+    fetchSession().then((ok) => {
+      if (cancelled) return
+      if (ok) setAuthenticated(true)
+      else navigate('/admin/login', { replace: true })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [navigate])
+
+  if (!authenticated) return <div className="min-h-svh bg-canvas" aria-busy="true" />
 
   return (
     <div className="min-h-svh bg-canvas text-ink lg:flex">

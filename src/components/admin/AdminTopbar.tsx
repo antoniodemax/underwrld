@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { ADMIN_USER } from '../../data/adminMock'
 import { useAdminSettings } from '../../hooks/useAdminSettings'
 import { useInquiries } from '../../hooks/useInquiries'
+import { signOut } from '../../lib/adminAuth'
 import { countByStatus } from '../../lib/inquiryStats'
 import { initials as computeInitials } from '../../lib/settingsStore'
 import { IconBell, IconSearch } from './adminIcons'
@@ -59,6 +60,17 @@ export function AdminTopbar({ onOpenSidebar }: Props) {
             <span className="eyebrow text-muted">{ADMIN_USER.role}</span>
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={async () => {
+            await signOut()
+            navigate('/admin/login', { replace: true })
+          }}
+          className="eyebrow text-muted transition-colors hover:text-accent-bright"
+        >
+          Sign out
+        </button>
       </div>
     </header>
   )

@@ -5,6 +5,7 @@ import { AdminClients } from './pages/admin/AdminClients'
 import { AdminDashboard } from './pages/admin/AdminDashboard'
 import { AdminDocuments } from './pages/admin/AdminDocuments'
 import { AdminInsights } from './pages/admin/AdminInsights'
+import { AdminLogin } from './pages/admin/AdminLogin'
 import { AdminNotifications } from './pages/admin/AdminNotifications'
 import { AdminReports } from './pages/admin/AdminReports'
 import { AdminSessions } from './pages/admin/AdminSessions'
@@ -15,6 +16,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<MarketingSite />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/*" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="analytics" element={<AdminAnalytics />} />

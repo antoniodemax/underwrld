@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (secrets) — never commit; .env.example is a template with no values
+.env
+.env.*
+
+# Vercel CLI project link
+.vercel
+
+# keep the env template tracked
+!.env.example
