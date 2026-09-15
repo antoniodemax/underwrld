@@ -1,5 +1,8 @@
 // Client for the server-side inquiry API. Records live in the server store, never in the browser;
 // the admin session cookie (HttpOnly) is what authorizes the admin endpoints.
+//
+// The Inquiry types below intentionally mirror lib/inquiries.ts rather than importing them: the browser
+// tsconfig has no Node types, so pulling in a server module would break `tsc -b`. Keep the two in sync.
 
 export type InquiryKind = 'inquiry' | 'session'
 export type InquiryStatus = 'New' | 'Contacted' | 'Booked'

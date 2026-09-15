@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ADMIN_USER } from '../../data/adminMock'
+import { ADMIN_USER } from '../../data/adminNav'
 import { useAdminSettings } from '../../hooks/useAdminSettings'
 import { useInquiries } from '../../hooks/useInquiries'
 import { signOut } from '../../lib/adminAuth'

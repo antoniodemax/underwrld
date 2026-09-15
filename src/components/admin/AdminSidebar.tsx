@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { NAV_LINKS, NAV_LINKS_BOTTOM } from '../../data/adminMock'
+import { NAV_LINKS, NAV_LINKS_BOTTOM } from '../../data/adminNav'
 import { Logo } from '../Logo'
 
 type Props = {

@@ -6,7 +6,7 @@ import { IconCheck, IconMail } from '../../components/icons'
 import { useAdminSettings } from '../../hooks/useAdminSettings'
 import { useInquiries } from '../../hooks/useInquiries'
 import { countByKind, countByStatus } from '../../lib/inquiryStats'
-import { ADMIN_USER } from '../../data/adminMock'
+import { ADMIN_USER } from '../../data/adminNav'
 
 export function AdminDashboard() {
   const inquiries = useInquiries()
