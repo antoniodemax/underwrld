@@ -1,17 +1,13 @@
+import { useState } from 'react'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
+import { InquiryActions } from '../../components/admin/InquiryActions'
 import { StatusBadge } from '../../components/admin/StatusBadge'
-import { useInquiries } from '../../hooks/useInquiries'
+import { useInquiriesQuery } from '../../hooks/useInquiries'
 import { timeAgo } from '../../lib/inquiryStats'
-import { nextStatus, setInquiryStatus, type InquiryStatus } from '../../lib/inquiryStore'
-
-const TONE: Record<InquiryStatus, 'accent' | 'success' | 'neutral'> = {
-  New: 'accent',
-  Contacted: 'neutral',
-  Booked: 'success',
-}
 
 export function AdminClients() {
-  const inquiries = useInquiries()
+  const { inquiries, loading, error, refresh } = useInquiriesQuery()
+  const [notice, setNotice] = useState<string | null>(null)
   const generalInquiries = inquiries.filter((i) => i.kind === 'inquiry')
   const newCount = generalInquiries.filter((i) => i.status === 'New').length
 
@@ -28,7 +24,22 @@ export function AdminClients() {
         </div>
         <p className="mt-1 text-sm text-ink-dim">Submissions from the "Let's build something" contact form</p>
 
-        {generalInquiries.length === 0 ? (
+        {notice && (
+          <p role="status" className="mt-4 border border-line-soft bg-canvas px-4 py-3 text-sm text-ink-dim">
+            {notice}
+          </p>
+        )}
+
+        {error ? (
+          <div className="mt-6 flex h-32 flex-col items-center justify-center border border-dashed border-line text-center">
+            <p className="text-sm text-ink-dim">Couldn't load inquiries.</p>
+            <button type="button" onClick={refresh} className="eyebrow mt-3 text-accent-bright hover:underline">
+              Try again
+            </button>
+          </div>
+        ) : loading ? (
+          <p className="eyebrow mt-6 text-muted">Loading…</p>
+        ) : generalInquiries.length === 0 ? (
           <div className="mt-6 flex h-32 flex-col items-center justify-center border border-dashed border-line text-center">
             <p className="text-sm text-ink-dim">No inquiries yet</p>
             <p className="mt-1 max-w-xs text-xs text-muted">
@@ -46,19 +57,10 @@ export function AdminClients() {
                   </div>
                   <p className="mt-1 text-sm text-ink-dim">{inquiry.message || 'No message provided.'}</p>
                   <p className="mt-1 text-xs text-muted">{inquiry.email}</p>
+                  <p className="eyebrow mt-2 text-muted">{timeAgo(inquiry.createdAt)}</p>
                 </div>
-                <div className="flex flex-shrink-0 items-center gap-3 sm:flex-col sm:items-end">
-                  <StatusBadge tone={TONE[inquiry.status]}>{inquiry.status}</StatusBadge>
-                  {inquiry.status !== 'Booked' && (
-                    <button
-                      type="button"
-                      onClick={() => setInquiryStatus(inquiry.id, nextStatus(inquiry.status))}
-                      className="eyebrow text-accent-bright hover:underline"
-                    >
-                      Mark {nextStatus(inquiry.status)}
-                    </button>
-                  )}
-                  <span className="eyebrow text-muted">{timeAgo(inquiry.createdAt)}</span>
+                <div className="flex-shrink-0">
+                  <InquiryActions inquiry={inquiry} noun="inquiry" onDeleted={() => setNotice('Inquiry deleted.')} />
                 </div>
               </li>
             ))}

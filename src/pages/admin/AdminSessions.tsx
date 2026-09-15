@@ -1,24 +1,34 @@
+import { useState } from 'react'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
-import { StatusBadge } from '../../components/admin/StatusBadge'
-import { useInquiries } from '../../hooks/useInquiries'
+import { InquiryActions } from '../../components/admin/InquiryActions'
+import { useInquiriesQuery } from '../../hooks/useInquiries'
 import { timeAgo } from '../../lib/inquiryStats'
-import { nextStatus, setInquiryStatus, type InquiryStatus } from '../../lib/inquiryStore'
-
-const TONE: Record<InquiryStatus, 'accent' | 'success' | 'neutral'> = {
-  New: 'accent',
-  Contacted: 'neutral',
-  Booked: 'success',
-}
 
 export function AdminSessions() {
-  const inquiries = useInquiries()
+  const { inquiries, loading, error, refresh } = useInquiriesQuery()
+  const [notice, setNotice] = useState<string | null>(null)
   const sessions = inquiries.filter((i) => i.kind === 'session')
 
   return (
     <div className="mx-auto max-w-7xl">
       <AdminPageHeader title="Sessions" subtitle="Session requests submitted through the contact form." />
 
-      {sessions.length === 0 ? (
+      {notice && (
+        <p role="status" className="mt-6 border border-line-soft bg-surface px-4 py-3 text-sm text-ink-dim">
+          {notice}
+        </p>
+      )}
+
+      {error ? (
+        <div className="mt-8 flex h-48 flex-col items-center justify-center border border-dashed border-line text-center">
+          <p className="text-sm text-ink-dim">Couldn't load session requests.</p>
+          <button type="button" onClick={refresh} className="eyebrow mt-3 text-accent-bright hover:underline">
+            Try again
+          </button>
+        </div>
+      ) : loading ? (
+        <p className="eyebrow mt-8 text-muted">Loading…</p>
+      ) : sessions.length === 0 ? (
         <div className="mt-8 flex h-48 flex-col items-center justify-center border border-dashed border-line text-center">
           <p className="text-sm text-ink-dim">No session requests yet</p>
           <p className="mt-1 max-w-xs text-xs text-muted">
@@ -27,7 +37,7 @@ export function AdminSessions() {
         </div>
       ) : (
         <div className="mt-8 overflow-x-auto border border-line bg-surface">
-          <table className="w-full min-w-[680px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="eyebrow text-muted">
                 <th className="px-6 py-4 font-normal sm:px-7">Client</th>
@@ -35,7 +45,6 @@ export function AdminSessions() {
                 <th className="px-6 py-4 font-normal sm:px-7">Preferred date</th>
                 <th className="px-6 py-4 font-normal sm:px-7">Submitted</th>
                 <th className="px-6 py-4 font-normal sm:px-7">Status</th>
-                <th className="px-6 py-4 font-normal sm:px-7" />
               </tr>
             </thead>
             <tbody>
@@ -49,18 +58,12 @@ export function AdminSessions() {
                   <td className="px-6 py-4 text-ink-dim sm:px-7">{session.preferredDate || 'No date given'}</td>
                   <td className="px-6 py-4 text-ink-dim sm:px-7">{timeAgo(session.createdAt)}</td>
                   <td className="px-6 py-4 sm:px-7">
-                    <StatusBadge tone={TONE[session.status]}>{session.status}</StatusBadge>
-                  </td>
-                  <td className="px-6 py-4 sm:px-7">
-                    {session.status !== 'Booked' && (
-                      <button
-                        type="button"
-                        onClick={() => setInquiryStatus(session.id, nextStatus(session.status))}
-                        className="eyebrow whitespace-nowrap text-accent-bright hover:underline"
-                      >
-                        Mark {nextStatus(session.status)}
-                      </button>
-                    )}
+                    <InquiryActions
+                      inquiry={session}
+                      noun="session request"
+                      layout="row"
+                      onDeleted={() => setNotice('Session request deleted.')}
+                    />
                   </td>
                 </tr>
               ))}

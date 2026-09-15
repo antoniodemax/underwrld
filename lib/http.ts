@@ -26,7 +26,11 @@ export function requestHost(req: VercelRequest): string | undefined {
 // State-changing requests must be same-origin (Origin header) and carry the custom header,
 // which browsers never attach cross-site without a CORS preflight we do not answer.
 export function passesCsrfChecks(req: VercelRequest): boolean {
-  if (req.method !== 'POST') return false
+  return passesMutationChecks(req, ['POST'])
+}
+
+export function passesMutationChecks(req: VercelRequest, allowedMethods: readonly string[]): boolean {
+  if (!req.method || !allowedMethods.includes(req.method)) return false
   const contentType = firstHeader(req, 'content-type') ?? ''
   if (!contentType.toLowerCase().startsWith('application/json')) return false
   if (firstHeader(req, CSRF_HEADER) !== CSRF_HEADER_VALUE) return false
@@ -41,6 +45,12 @@ export function passesCsrfChecks(req: VercelRequest): boolean {
     return false
   }
   return originHost === host
+}
+
+export function clientIp(req: VercelRequest): string {
+  const forwarded = firstHeader(req, 'x-forwarded-for')
+  const first = forwarded?.split(',')[0]?.trim()
+  return first || firstHeader(req, 'x-real-ip') || 'unknown'
 }
 
 export function requireEnv(name: string): string {

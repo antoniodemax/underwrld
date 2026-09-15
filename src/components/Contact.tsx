@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from 'react'
 import { IconArrowRight, IconCheck, IconInstagram, IconMail, IconWhatsapp } from './icons'
 import { revealHidden, useReveal } from '../hooks/useReveal'
-import { addInquiry, type InquiryKind } from '../lib/inquiryStore'
+import { submitInquiry, type InquiryKind, type SubmitResult } from '../lib/inquiryStore'
 
 const SESSION_TYPES = [
   'Custom beat making',
@@ -21,19 +21,29 @@ const field =
   'w-full border border-line bg-canvas px-4 py-3 text-sm text-ink placeholder:text-muted transition-colors focus:border-accent-bright focus:outline-none'
 const label = 'eyebrow mb-2 block text-muted'
 
+const SUBMIT_ERRORS: Record<Exclude<SubmitResult, 'ok'>, string> = {
+  invalid: 'Please check your details and try again.',
+  rate_limited: "You've sent a few requests already — please try again in an hour.",
+  error: "Something went wrong sending that. Please try again, or email us directly.",
+}
+
 export function Contact() {
   const [submitted, setSubmitted] = useState<InquiryKind | false>(false)
+  const [sending, setSending] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const info = useReveal<HTMLDivElement>()
   const card = useReveal<HTMLDivElement>(150)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null
     const kind: InquiryKind = submitter?.value === 'session' ? 'session' : 'inquiry'
     const data = new FormData(form)
 
-    addInquiry({
+    setSending(true)
+    setSubmitError(null)
+    const result = await submitInquiry({
       kind,
       name: String(data.get('name') ?? ''),
       email: String(data.get('email') ?? ''),
@@ -41,7 +51,12 @@ export function Contact() {
       preferredDate: String(data.get('date') ?? ''),
       message: String(data.get('message') ?? ''),
     })
+    setSending(false)
 
+    if (result !== 'ok') {
+      setSubmitError(SUBMIT_ERRORS[result])
+      return
+    }
     setSubmitted(kind)
     form.reset()
   }
@@ -156,20 +171,28 @@ export function Contact() {
                 />
               </div>
 
+              {submitError && (
+                <p role="alert" className="border border-line-soft bg-canvas px-4 py-3 text-sm text-ink-dim">
+                  {submitError}
+                </p>
+              )}
+
               <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="submit"
                   name="intent"
                   value="inquiry"
-                  className="flex-1 bg-accent px-6 py-4 font-mono text-[13px] font-semibold tracking-[0.06em] text-accent-ink uppercase transition-[background-color,box-shadow] hover:bg-accent-bright hover:shadow-[0_0_28px_rgba(214,24,26,0.45)]"
+                  disabled={sending}
+                  className="flex-1 bg-accent px-6 py-4 font-mono text-[13px] font-semibold tracking-[0.06em] text-accent-ink uppercase transition-[background-color,box-shadow] enabled:hover:bg-accent-bright enabled:hover:shadow-[0_0_28px_rgba(214,24,26,0.45)] disabled:opacity-60"
                 >
-                  Submit an inquiry
+                  {sending ? 'Sending…' : 'Submit an inquiry'}
                 </button>
                 <button
                   type="submit"
                   name="intent"
                   value="session"
-                  className="flex flex-1 items-center justify-center border border-ink/30 px-6 py-3.5 font-mono text-[13px] font-semibold tracking-[0.06em] text-ink uppercase transition-colors hover:border-accent-bright hover:text-accent-bright"
+                  disabled={sending}
+                  className="flex flex-1 items-center justify-center border border-ink/30 px-6 py-3.5 font-mono text-[13px] font-semibold tracking-[0.06em] text-ink uppercase transition-colors enabled:hover:border-accent-bright enabled:hover:text-accent-bright disabled:opacity-60"
                 >
                   Request a session
                 </button>

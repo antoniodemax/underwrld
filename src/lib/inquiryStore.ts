@@ -1,3 +1,6 @@
+// Client for the server-side inquiry API. Records live in the server store, never in the browser;
+// the admin session cookie (HttpOnly) is what authorizes the admin endpoints.
+
 export type InquiryKind = 'inquiry' | 'session'
 export type InquiryStatus = 'New' | 'Contacted' | 'Booked'
 
@@ -13,59 +16,99 @@ export type Inquiry = {
   createdAt: string
 }
 
-const STORAGE_KEY = 'underwrld_inquiries'
 export const INQUIRIES_EVENT = 'underwrld:inquiries'
 
-function notify() {
+const HEADERS = { 'Content-Type': 'application/json', 'X-Requested-With': 'underwrld-admin' }
+
+export type SubmitResult = 'ok' | 'invalid' | 'rate_limited' | 'error'
+export type MutationResult = 'ok' | 'not_found' | 'unauthorized' | 'error'
+
+let cache: Inquiry[] | null = null
+let inflight: Promise<Inquiry[]> | null = null
+
+export function cachedInquiries(): Inquiry[] | null {
+  return cache
+}
+
+export function loadInquiries(): Promise<Inquiry[]> {
+  if (cache) return Promise.resolve(cache)
+  if (inflight) return inflight
+  inflight = fetch('/api/admin/inquiries', { credentials: 'same-origin', cache: 'no-store' })
+    .then(async (res) => {
+      if (res.status === 401) throw new Error('unauthorized')
+      if (!res.ok) throw new Error('error')
+      const data = (await res.json()) as { inquiries?: Inquiry[] }
+      cache = Array.isArray(data.inquiries) ? data.inquiries : []
+      return cache
+    })
+    .finally(() => {
+      inflight = null
+    })
+  return inflight
+}
+
+export function invalidateInquiries() {
+  cache = null
   window.dispatchEvent(new Event(INQUIRIES_EVENT))
 }
 
-export function getInquiries(): Inquiry[] {
+export async function submitInquiry(input: Omit<Inquiry, 'id' | 'status' | 'createdAt'>): Promise<SubmitResult> {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
+    const res = await fetch('/api/inquiries', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: HEADERS,
+      body: JSON.stringify(input),
+    })
+    if (res.ok) return 'ok'
+    if (res.status === 429) return 'rate_limited'
+    if (res.status === 400) return 'invalid'
+    return 'error'
   } catch {
-    return []
+    return 'error'
   }
 }
 
-function save(inquiries: Inquiry[]) {
+function mutationResult(status: number): MutationResult {
+  if (status === 404) return 'not_found'
+  if (status === 401) return 'unauthorized'
+  return 'error'
+}
+
+export async function updateInquiryStatus(
+  id: string,
+  status: InquiryStatus,
+): Promise<{ result: MutationResult; inquiry?: Inquiry }> {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(inquiries))
-    notify()
+    const res = await fetch(`/api/admin/inquiries/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: HEADERS,
+      body: JSON.stringify({ status }),
+    })
+    if (!res.ok) return { result: mutationResult(res.status) }
+    const data = (await res.json()) as { inquiry?: Inquiry }
+    return { result: 'ok', inquiry: data.inquiry }
   } catch {
-    // storage unavailable (private mode, quota, etc.) — fail silently
+    return { result: 'error' }
   }
 }
 
-export function addInquiry(input: {
-  kind: InquiryKind
-  name: string
-  email: string
-  service: string
-  preferredDate: string
-  message: string
-}): Inquiry {
-  const inquiry: Inquiry = {
-    ...input,
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    status: 'New',
-    createdAt: new Date().toISOString(),
+export async function deleteInquiry(id: string): Promise<MutationResult> {
+  try {
+    const res = await fetch(`/api/admin/inquiries/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: HEADERS,
+      body: '{}',
+    })
+    return res.ok ? 'ok' : mutationResult(res.status)
+  } catch {
+    return 'error'
   }
-  const all = getInquiries()
-  save([inquiry, ...all])
-  return inquiry
-}
-
-export function setInquiryStatus(id: string, status: InquiryStatus) {
-  const all = getInquiries().map((i) => (i.id === id ? { ...i, status } : i))
-  save(all)
 }
 
 export function nextStatus(status: InquiryStatus): InquiryStatus {
   if (status === 'New') return 'Contacted'
-  if (status === 'Contacted') return 'Booked'
   return 'Booked'
 }
