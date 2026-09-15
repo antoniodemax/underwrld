@@ -40,12 +40,31 @@ function securityHeaders(url: URL): Record<string, string> {
   return headers
 }
 
+// The SPA router is case-insensitive and the platform passes the path through percent-encoded, so
+// `/Admin`, `/ADMIN/settings` and `/admin%2Fsettings` would all reach the shell without the session
+// check unless the path is normalised first. Decode repeatedly so double-encoding cannot slip past.
+function normalizePath(pathname: string): string {
+  let path = pathname
+  for (let i = 0; i < 3; i++) {
+    let decoded: string
+    try {
+      decoded = decodeURIComponent(path)
+    } catch {
+      break
+    }
+    if (decoded === path) break
+    path = decoded
+  }
+  return path.toLowerCase().replace(/\/{2,}/g, '/')
+}
+
 export default async function middleware(request: Request): Promise<Response> {
   const url = new URL(request.url)
   const headers = securityHeaders(url)
 
-  const isAdminRoute = url.pathname === '/admin' || url.pathname.startsWith('/admin/')
-  if (!isAdminRoute || url.pathname === LOGIN_PATH) return next({ headers })
+  const path = normalizePath(url.pathname)
+  const isAdminRoute = path === '/admin' || path.startsWith('/admin/')
+  if (!isAdminRoute || path === LOGIN_PATH) return next({ headers })
 
   const secret = process.env.SESSION_SECRET
   const token = parseCookies(request.headers.get('cookie'))[SESSION_COOKIE]
