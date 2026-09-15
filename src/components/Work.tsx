@@ -1,29 +1,6 @@
 import { IconArrowRight, IconSpotify } from './icons'
 import { revealHidden, useReveal } from '../hooks/useReveal'
-
-const RELEASES = [
-  {
-    artist: 'Kai Velvet',
-    project: 'Nightwalk',
-    year: '2026',
-    tags: ['Production', 'Songwriting', 'Mixing'],
-    image: '/images/work-1.jpg',
-  },
-  {
-    artist: 'Omar Dune',
-    project: 'Concrete Bloom',
-    year: '2025',
-    tags: ['Production', 'Post-production'],
-    image: '/images/work-2.jpg',
-  },
-  {
-    artist: 'VEXX',
-    project: 'State Player',
-    year: '2025',
-    tags: ['Production', 'Vocal development'],
-    image: '/images/work-3.jpg',
-  },
-]
+import { RELEASES, SPOTIFY_ARTIST_URL } from '../data/catalogue'
 
 export function Work() {
   const header = useReveal<HTMLDivElement>()
@@ -43,7 +20,7 @@ export function Work() {
             </h2>
           </div>
           <a
-            href="https://open.spotify.com"
+            href={SPOTIFY_ARTIST_URL}
             target="_blank"
             rel="noreferrer"
             className="eyebrow inline-flex items-center gap-2 text-ink-dim transition-colors hover:text-accent-bright"
@@ -57,14 +34,19 @@ export function Work() {
           className={`mt-12 grid gap-px border border-line bg-line sm:grid-cols-3 ${revealHidden}`}
         >
           {RELEASES.map((release) => (
-            <article key={release.artist} className="group flex flex-col bg-canvas">
+            <article key={release.spotifyTrackUrl} className="group flex flex-col bg-canvas">
               <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
-                <img
-                  src={release.image}
-                  alt={`${release.artist} — ${release.project}`}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  onError={(e) => (e.currentTarget.style.display = 'none')}
-                />
+                {release.image ? (
+                  <img
+                    src={release.image}
+                    alt={`${release.artist} — ${release.title}`}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center" aria-hidden>
+                    <IconSpotify className="h-8 w-8 text-muted" />
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-canvas/70 via-transparent to-transparent" />
               </div>
 
@@ -75,21 +57,16 @@ export function Work() {
                   </h3>
                   <span className="eyebrow text-muted">{release.year}</span>
                 </div>
-                <p className="mt-1 text-sm text-ink-dim">{release.project}</p>
+                <p className="mt-1 text-sm text-ink-dim">{release.title}</p>
 
                 <div className="mt-4 flex flex-wrap gap-1.5">
-                  {release.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  <span className="border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+                    {release.type}
+                  </span>
                 </div>
 
                 <a
-                  href="https://open.spotify.com"
+                  href={release.spotifyTrackUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="eyebrow mt-6 inline-flex items-center gap-2 text-ink transition-colors hover:text-accent-bright"

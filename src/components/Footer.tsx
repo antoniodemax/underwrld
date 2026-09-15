@@ -1,6 +1,7 @@
 import { Logo } from './Logo'
 import { IconInstagram, IconMail, IconSpotify } from './icons'
 import { revealHidden, useReveal } from '../hooks/useReveal'
+import { SPOTIFY_ARTIST_URL } from '../data/catalogue'
 
 const LINKS = [
   { href: '#services', label: 'Services' },
@@ -9,7 +10,7 @@ const LINKS = [
 ]
 
 const SOCIALS = [
-  { icon: IconSpotify, href: 'https://open.spotify.com', label: 'Spotify' },
+  { icon: IconSpotify, href: SPOTIFY_ARTIST_URL, label: 'Spotify' },
   { icon: IconInstagram, href: 'https://instagram.com', label: 'Instagram' },
   { icon: IconMail, href: 'mailto:hello@underwrld.xyz', label: 'Email' },
 ]
