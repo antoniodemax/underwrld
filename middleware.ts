@@ -4,7 +4,7 @@ import { SESSION_COOKIE, isAuthorizedSub, parseCookies, verifySessionToken } fro
 export const config = {
   runtime: 'nodejs',
   // Static assets and Vite dev-only module paths (/src, /node_modules, /@vite, /@react-refresh) never carry admin routes.
-  matcher: ['/((?!assets/|images/|favicon.svg|src/|node_modules/|@).*)'],
+  matcher: ['/((?!assets/|images/|favicon|apple-touch-icon|src/|node_modules/|@).*)'],
 }
 
 const LOGIN_PATH = '/admin/login'
