@@ -64,18 +64,18 @@ export function Services() {
   return (
     <section id="services" className="relative scroll-mt-16 overflow-hidden">
       <div
-        className="pointer-events-none absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-accent/20 blur-[120px]"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/25 blur-[140px]"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute top-0 right-10 h-[420px] w-[420px] rounded-full bg-success/15 blur-[130px]"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[520px] w-[520px] -translate-x-[38%] -translate-y-[62%] rounded-full bg-success/18 blur-[140px]"
         aria-hidden
       />
       <img
         src="/images/logo-mark.png"
         alt=""
         aria-hidden
-        className="animate-spin-slow pointer-events-none absolute -top-28 -right-28 h-[480px] w-auto opacity-[0.18] mix-blend-screen sm:h-[560px] lg:h-[640px]"
+        className="animate-spin-slow pointer-events-none absolute top-1/2 left-1/2 h-[480px] w-auto -translate-x-1/2 -translate-y-1/2 opacity-30 mix-blend-screen sm:h-[600px] lg:h-[680px]"
       />
 
       <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
@@ -92,7 +92,7 @@ export function Services() {
             </h2>
           </div>
           <a
-            href="#contact"
+            href="#services-grid"
             className="eyebrow inline-flex items-center gap-2 text-ink-dim transition-colors hover:text-accent-bright"
           >
             All services <IconArrowRight className="h-3.5 w-3.5" />
@@ -100,8 +100,9 @@ export function Services() {
         </div>
 
         <div
+          id="services-grid"
           ref={grid}
-          className={`mt-12 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3 ${revealHidden}`}
+          className={`mt-12 scroll-mt-24 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3 ${revealHidden}`}
         >
           {SERVICES.map((service) => (
             <article
@@ -115,7 +116,7 @@ export function Services() {
                   setActive(service)
                 }
               }}
-              className="group flex min-h-64 cursor-pointer flex-col bg-canvas p-7 outline-none transition-[background-color,box-shadow] hover:bg-surface focus-visible:bg-surface hover:shadow-[inset_0_0_0_1px_var(--color-accent)] focus-visible:shadow-[inset_0_0_0_1px_var(--color-accent)]"
+              className="group flex min-h-64 cursor-pointer flex-col bg-canvas/95 p-7 outline-none transition-[background-color,box-shadow] hover:bg-surface/95 focus-visible:bg-surface/95 hover:shadow-[inset_0_0_0_1px_var(--color-accent)] focus-visible:shadow-[inset_0_0_0_1px_var(--color-accent)]"
             >
               <div className="flex items-start justify-end">
                 <span className="text-muted transition-colors group-hover:text-accent-bright" aria-hidden>
@@ -133,7 +134,7 @@ export function Services() {
             </article>
           ))}
 
-          <aside className="flex min-h-64 flex-col justify-between bg-surface p-7">
+          <aside className="flex min-h-64 flex-col justify-between bg-surface/95 p-7">
             <h3 className="font-display text-xl font-semibold leading-snug text-ink">
               Not sure which
               <br />

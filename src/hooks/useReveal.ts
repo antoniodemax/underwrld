@@ -9,7 +9,10 @@ export function useReveal<T extends HTMLElement>(delayMs = 0) {
     const el = ref.current
     if (!el) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !('IntersectionObserver' in window)
+    ) {
       el.classList.remove(...HIDDEN_CLASSES)
       return
     }
