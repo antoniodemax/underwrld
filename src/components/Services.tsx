@@ -62,23 +62,18 @@ export function Services() {
   const [active, setActive] = useState<Service | null>(null)
 
   return (
-    <section id="services" className="relative scroll-mt-16 overflow-hidden">
-      <div
-        className="pointer-events-none absolute top-1/2 left-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/25 blur-[140px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute top-1/2 left-1/2 h-[520px] w-[520px] -translate-x-[38%] -translate-y-[62%] rounded-full bg-success/18 blur-[140px]"
-        aria-hidden
-      />
-      <img
-        src="/images/logo-mark.png"
-        alt=""
-        aria-hidden
-        className="animate-spin-slow pointer-events-none absolute top-1/2 left-1/2 h-[480px] w-auto -translate-x-1/2 -translate-y-1/2 opacity-30 mix-blend-screen sm:h-[600px] lg:h-[680px]"
-      />
+    <section id="services" className="relative scroll-mt-16">
+      <div className="sticky top-16 z-0 h-[calc(100svh_-_4rem)] overflow-hidden" aria-hidden>
+        <div className="pointer-events-none absolute top-1/2 left-1/2 h-[85vh] w-[85vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/40 blur-[90px] sm:h-[700px] sm:w-[700px] sm:blur-[150px]" />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 h-[70vh] w-[70vw] -translate-x-[30%] -translate-y-[68%] rounded-full bg-success/28 blur-[90px] sm:h-[560px] sm:w-[560px] sm:blur-[150px]" />
+        <img
+          src="/images/logo-mark.png"
+          alt=""
+          className="animate-spin-slow pointer-events-none absolute top-1/2 left-1/2 h-[380px] w-auto -translate-x-1/2 -translate-y-1/2 opacity-60 mix-blend-screen sm:h-[540px] lg:h-[660px]"
+        />
+      </div>
 
-      <div className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+      <div className="relative z-10 mx-auto -mt-[calc(100svh_-_4rem)] max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
         <div
           ref={header}
           className={`flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between ${revealHidden}`}
@@ -116,7 +111,7 @@ export function Services() {
                   setActive(service)
                 }
               }}
-              className="group flex min-h-64 cursor-pointer flex-col bg-canvas/95 p-7 outline-none transition-[background-color,box-shadow] hover:bg-surface/95 focus-visible:bg-surface/95 hover:shadow-[inset_0_0_0_1px_var(--color-accent)] focus-visible:shadow-[inset_0_0_0_1px_var(--color-accent)]"
+              className="group flex min-h-64 cursor-pointer flex-col bg-canvas/35 p-7 backdrop-blur-sm outline-none transition-[background-color,box-shadow] hover:bg-surface/55 focus-visible:bg-surface/55 hover:shadow-[inset_0_0_0_1px_var(--color-accent)] focus-visible:shadow-[inset_0_0_0_1px_var(--color-accent)]"
             >
               <div className="flex items-start justify-end">
                 <span className="text-muted transition-colors group-hover:text-accent-bright" aria-hidden>
@@ -134,7 +129,7 @@ export function Services() {
             </article>
           ))}
 
-          <aside className="flex min-h-64 flex-col justify-between bg-surface/95 p-7">
+          <aside className="flex min-h-64 flex-col justify-between bg-surface/35 p-7 backdrop-blur-sm">
             <h3 className="font-display text-xl font-semibold leading-snug text-ink">
               Not sure which
               <br />
