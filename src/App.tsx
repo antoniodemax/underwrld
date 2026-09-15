@@ -1,26 +1,32 @@
-import { Contact } from './components/Contact'
-import { Footer } from './components/Footer'
-import { Hero } from './components/Hero'
-import { Navbar } from './components/Navbar'
-import { Services } from './components/Services'
-import { Stats } from './components/Stats'
-import { Ticker } from './components/Ticker'
-import { Work } from './components/Work'
+import { Route, Routes } from 'react-router-dom'
+import { AdminLayout } from './components/admin/AdminLayout'
+import { AdminAnalytics } from './pages/admin/AdminAnalytics'
+import { AdminClients } from './pages/admin/AdminClients'
+import { AdminDashboard } from './pages/admin/AdminDashboard'
+import { AdminDocuments } from './pages/admin/AdminDocuments'
+import { AdminInsights } from './pages/admin/AdminInsights'
+import { AdminNotifications } from './pages/admin/AdminNotifications'
+import { AdminReports } from './pages/admin/AdminReports'
+import { AdminSessions } from './pages/admin/AdminSessions'
+import { AdminSettings } from './pages/admin/AdminSettings'
+import { MarketingSite } from './pages/MarketingSite'
 
 function App() {
   return (
-    <div className="min-h-svh bg-canvas text-ink">
-      <Navbar />
-      <main>
-        <Hero />
-        <Ticker />
-        <Services />
-        <Stats />
-        <Work />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <Routes>
+      <Route path="/" element={<MarketingSite />} />
+      <Route path="/admin/*" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="analytics" element={<AdminAnalytics />} />
+        <Route path="clients" element={<AdminClients />} />
+        <Route path="sessions" element={<AdminSessions />} />
+        <Route path="reports" element={<AdminReports />} />
+        <Route path="insights" element={<AdminInsights />} />
+        <Route path="documents" element={<AdminDocuments />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="settings" element={<AdminSettings />} />
+      </Route>
+    </Routes>
   )
 }
 
