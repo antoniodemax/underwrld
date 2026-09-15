@@ -47,6 +47,16 @@ export function passesMutationChecks(req: VercelRequest, allowedMethods: readonl
   return originHost === host
 }
 
+// Vercel parses the body lazily on access and throws on invalid JSON; treat that as a plain bad request.
+export function jsonBody(req: VercelRequest): Record<string, unknown> | null {
+  try {
+    const body = req.body
+    return typeof body === 'object' && body !== null && !Array.isArray(body) ? (body as Record<string, unknown>) : null
+  } catch {
+    return null
+  }
+}
+
 export function clientIp(req: VercelRequest): string {
   const forwarded = firstHeader(req, 'x-forwarded-for')
   const first = forwarded?.split(',')[0]?.trim()

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { clientIp, json, passesMutationChecks } from '../lib/http.js'
+import { clientIp, json, jsonBody, passesMutationChecks } from '../lib/http.js'
 import { createInquiry, INQUIRY_KINDS, isRateLimited, type InquiryKind } from '../lib/inquiries.js'
 
 const LIMITS = { name: 120, email: 254, service: 120, message: 2000 }
@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   if (!passesMutationChecks(req, ['POST'])) return json(res, 403, { error: 'forbidden' })
 
-  const body = typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : null
+  const body = jsonBody(req)
   if (!body) return json(res, 400, { error: 'bad_request' })
 
   const kind = body.kind

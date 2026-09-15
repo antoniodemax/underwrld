@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { json, passesMutationChecks, readSession } from '../../../lib/http.js'
+import { json, jsonBody, passesMutationChecks, readSession } from '../../../lib/http.js'
 import { deleteInquiry, isInquiryStatus, isValidInquiryId, updateInquiryStatus } from '../../../lib/inquiries.js'
 
 // Single-tenant authorization: the verified admin session (readSession) is the only principal allowed to
@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 200, { ok: true })
     }
 
-    const body = typeof req.body === 'object' && req.body !== null ? (req.body as { status?: unknown }) : null
+    const body = jsonBody(req)
     if (!body || !isInquiryStatus(body.status)) return json(res, 400, { error: 'bad_request' })
 
     const inquiry = await updateInquiryStatus(id, body.status)
